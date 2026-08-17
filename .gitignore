@@ -1,0 +1,8 @@
+node_modules/
+dist/
+reports/
+test-results/
+*.log
+
+# Local Claude Code settings (machine-specific)
+.claude/settings.local.json

@@ -1,0 +1,29 @@
+{
+  "name": "orangehrm-playwright-cucumber",
+  "version": "1.0.0",
+  "description": "OrangeHRM UI automation with Playwright + Cucumber + TypeScript (Page Object Model)",
+  "scripts": {
+    "test": "cucumber-js",
+    "test:login": "cucumber-js --tags @login",
+    "test:smoke": "cucumber-js --tags @smoke",
+    "test:headed": "cross-env HEADLESS=false cucumber-js"
+  },
+  "keywords": [
+    "playwright",
+    "cucumber",
+    "typescript",
+    "bdd",
+    "pom",
+    "orangehrm"
+  ],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@cucumber/cucumber": "^11.2.0",
+    "@playwright/test": "^1.49.1",
+    "@types/node": "^22.10.5",
+    "cross-env": "^7.0.3",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.7.3"
+  }
+}

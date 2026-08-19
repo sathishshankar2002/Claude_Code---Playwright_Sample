@@ -1,0 +1,67 @@
+name: Daily OrangeHRM Tests
+
+# Runs the Cucumber suite on a daily schedule and emails the report.
+on:
+  schedule:
+    # 03:30 UTC = 09:00 AM IST, every day. Adjust the cron as needed.
+    # (cron is always in UTC; format: minute hour day month day-of-week)
+    - cron: '30 3 * * *'
+  workflow_dispatch: {} # also allow manual runs from the Actions tab
+
+jobs:
+  test:
+    name: Run Cucumber suite
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright Chromium (with OS deps)
+        run: npx playwright install --with-deps chromium
+
+      - name: Run tests (headless)
+        id: tests
+        env:
+          HEADLESS: 'true'
+        run: npm test
+
+      # Everything below runs even if the tests fail, so you always get a report.
+      - name: Upload report as build artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cucumber-report
+          path: reports/
+          retention-days: 30
+
+      - name: Email the report
+        if: always()
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          secure: true
+          username: ${{ secrets.SMTP_USERNAME }}
+          password: ${{ secrets.SMTP_PASSWORD }}
+          subject: "OrangeHRM Daily Test Report — ${{ job.status }} (run #${{ github.run_number }})"
+          to: svsathish2002@gmail.com
+          from: OrangeHRM CI <${{ secrets.SMTP_USERNAME }}>
+          html_body: |
+            <h2>OrangeHRM Daily Automated Test Run</h2>
+            <p><b>Result:</b> ${{ job.status }}</p>
+            <p><b>Run:</b> #${{ github.run_number }} on branch <code>${{ github.ref_name }}</code></p>
+            <p>The full Cucumber HTML report is attached — open it in a browser to see
+            each scenario, steps, and embedded screenshots.</p>
+            <p>You can also download it from the
+            <a href="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}">GitHub Actions run</a>.</p>
+          attachments: reports/cucumber-report.html,reports/cucumber-report.json

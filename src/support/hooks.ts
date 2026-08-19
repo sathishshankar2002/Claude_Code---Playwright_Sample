@@ -17,7 +17,10 @@ let browser: Browser;
 BeforeAll(async function () {
   browser = await chromium.launch({
     headless: config.headless,
-    args: ['--start-maximized']
+    // Headed: maximize to the real screen. Headless (e.g. CI): there is no
+    // screen to maximize, so force a large window to keep the desktop layout
+    // (and the responsive side menu) intact.
+    args: config.headless ? ['--window-size=1920,1080'] : ['--start-maximized']
   });
 });
 

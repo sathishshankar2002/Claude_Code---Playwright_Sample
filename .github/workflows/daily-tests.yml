@@ -12,6 +12,12 @@ jobs:
   test:
     name: Run Cucumber suite
     runs-on: ubuntu-latest
+    # Run inside the official Playwright image: Chromium + all OS dependencies
+    # are pre-installed, so we skip the slow/fragile "install --with-deps" step.
+    # The image tag MUST match the Playwright version in package.json.
+    container:
+      image: mcr.microsoft.com/playwright:v1.62.1-noble
+    timeout-minutes: 30 # safety net so a hung step can never run for hours
 
     steps:
       - name: Checkout repository
@@ -25,9 +31,6 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
-
-      - name: Install Playwright Chromium (with OS deps)
-        run: npx playwright install --with-deps chromium
 
       - name: Run tests (headless)
         id: tests
